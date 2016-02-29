@@ -2,18 +2,21 @@
   "name": "salesforce-rest",
   "version": "0.0.1",
   "description": "Salesforce REST API",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "author": "Andrew Pedley <apedley@gmail.com>",
+  "main": "lib/salesforce-rest",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apedley/salesforce-rest.git"
   },
-  "author": "Andrew Pedley",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/apedley/salesforce-rest/issues"
+  "scripts": {
+    "test": "mocha test/salesforce-rest.js"
   },
-  "homepage": "https://github.com/apedley/salesforce-rest#readme"
+  "license": "ISC",
+  "engines": {
+    "node": ">= 0.12.7"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  }
 }
