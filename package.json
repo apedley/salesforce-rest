@@ -1,0 +1,19 @@
+{
+  "name": "salesforce-rest",
+  "version": "0.0.1",
+  "description": "Salesforce REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apedley/salesforce-rest.git"
+  },
+  "author": "Andrew Pedley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/apedley/salesforce-rest/issues"
+  },
+  "homepage": "https://github.com/apedley/salesforce-rest#readme"
+}
