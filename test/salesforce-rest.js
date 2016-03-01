@@ -18,8 +18,6 @@ describe('salesforceRest', function() {
       expect(salesforceRest.optionsSet()).to.be.true;
     });
 
-
-
     it('should get options', function() {
       var options = salesforceRest.getOptions();
       expect(options.accessToken).to.equal('abcdef');
@@ -35,6 +33,31 @@ describe('salesforceRest', function() {
       salesforceRest.resetOptions();
       expect(function(){salesforceRest.login()}).to.throw(Error);
     });
+
+    it('should login', function() {
+      salesforceRest.setOptions(config);
+      salesforceRest.login(function(data) {
+        expect(data).to.have.property('access_token');
+        var options = salesforceRest.getOptions();
+        expect(options).to.have.property('accessToken');
+      });
+    });
   });
+
+  describe('get', function() {
+    before(function() {
+      salesforceRest.resetOptions();
+    });
+
+    it('should not run query when options are not set', function() {
+      var getFunction = function() {
+        salesforceRest.get('Select Name FROM User', function(){});
+      }
+
+      expect(getFunction).to.throw(Error);
+    });
+  });
+
+
 
 });
