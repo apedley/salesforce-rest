@@ -58,8 +58,8 @@ describe('salesforceRest', function() {
       expect(getFunction).to.throw(Error);
     });
 
-    it('should run query after login', function() {
-
+    it('should run query after login', function(done) {
+      this.timeout(5000);
       salesforceRest.setOptions(config);
 
       var loginPromise = Promise.promisify(salesforceRest.login, {context: salesforceRest});
@@ -71,6 +71,7 @@ describe('salesforceRest', function() {
           expect(error).to.be.null;
           data = JSON.parse(data);
           expect(Object.keys(data).length).to.be.gt(0);
+          done();
         });
       })
       .catch(function(e) {
@@ -81,11 +82,42 @@ describe('salesforceRest', function() {
 
   describe('post', function() {
     it('should not post if options are not set', function() {
-      
+
+      salesforceRest.resetOptions();
+      var postFunction = function() {
+        salesforceRest.post('/services/data/v20.0/sobjects/Contact/');
+      }
+      expect(postFunction).to.throw(Error);
     });
 
-    it('should post after login', function() {
+    it('should post after login', function(done) {
+      this.timeout(5000);
+      salesforceRest.setOptions(config);
+
+      var loginPromise = Promise.promisify(salesforceRest.login, {context: salesforceRest});
+
+      var postData = {
+          "FirstName": "Buddy",
+          "LastName": "Testman",
+          "RecordTypeId": config.recordTypeId
+      }
+      loginPromise().then(function(rest){})
+      .then(function() {
+        salesforceRest.post('/services/data/v20.0/sobjects/Contact/', postData, function(error, data) {
+          expect(error).to.be.null;
+          data = JSON.parse(data);
+          expect(data.success).to.be.true;
+          done();
+        })
+      })
+      .catch(function(e){
+        console.error(e);
+        done();
+      })
 
     });
   });
+
+
+  
 });
