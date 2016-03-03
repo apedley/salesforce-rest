@@ -189,20 +189,4 @@ describe('salesforceRest', function() {
       });
     });
   });
-
-  // describe('deleteall', function() {
-  //   it ('deletes all', function() {
-  //     var query = "SELECT Id from Contact";
-  //     salesforceRest.get(query, function(error, data) {
-  //       var ids = _.map(data.records, function(item) {
-  //         return item.Id;
-  //       });
-  //       _.each(ids, function(item) {
-  //         salesforceRest.delete('Contact', item, function(error, data) {
-  //           expect(error).to.be.null;
-  //         });
-  //       });
-  //     });
-  //   });
-  // });
 });
