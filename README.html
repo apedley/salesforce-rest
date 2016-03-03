@@ -1015,4 +1015,65 @@ body .markdown-body
   }
 }
 </style><title>README</title></head><body><article class="markdown-body"><h2 id="salesforce-rest"><a name="user-content-salesforce-rest" href="#salesforce-rest" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Salesforce REST</h2>
-<p>Salesforce REST is a module for interfacing with the Salesforce REST API.</p></article></body></html>
+<p>Salesforce REST is a module for interfacing with the Salesforce REST API. To use this module you will need to create a connected app and have permission to manipulate the objects.</p>
+<h3 id="usage"><a name="user-content-usage" href="#usage" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Usage</h3>
+<ol>
+<li>Download module<br />
+  <pre><code>npm install --save salesforce-rest
+</code></pre></li>
+<li>Import it<br />
+  <pre><code>var salesforceRest = require('salesforce-rest');
+</code></pre></li>
+<li>Set config variables<br />
+  <pre><code class="javascript">salesforceRest.setOptions({
+  key: 'salesforce key',
+  secret: 'salesforce secret',
+  username: 'salesforce username',
+  password: 'salesforce password',
+  userSecurityToken: 'get this from your user profile page',
+  hostName: 'login host eg. login.salesforce.com or test.salesforce.com',
+  tokenPath: 'usually /services/oauth2/token',
+});
+</code></pre></li>
+<li>Login<br />
+  <pre><code class="javascript">  salesforceRest.login(function(error, success) {
+    if (error) { throw new Error('Login failed'); }
+  });
+</code></pre></li>
+<li>Use rest methods:</li>
+</ol>
+<h4 id="get"><a name="user-content-get" href="#get" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Get</h4>
+<p>Get runs a query using SalesForce&rsquo;s SOQL syntax. Example:</p>
+<pre><code class="javascript">salesforceRest.get('Select Name FROM Contact', function(error, data) {
+  console.log(data);
+}
+</code></pre>
+
+<h4 id="post"><a name="user-content-post" href="#post" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Post</h4>
+<p>Creates a new record for an object. Example:</p>
+<pre><code class="javascript">var postData = {
+          &quot;FirstName&quot;: &quot;Buddy&quot;,
+          &quot;LastName&quot;: &quot;Testman&quot;
+          }
+salesforceRest.post('/services/data/v20.0/sobjects/Contact/', postData, function(error, data) {
+  console.log(data);
+}
+</code></pre>
+
+<h4 id="put"><a name="user-content-put" href="#put" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Put</h4>
+<p>Updates an object. Example:</p>
+<pre><code class="javascript">var id = 2;
+var updatedInfo = {LastName: 'Redman'};
+
+salesforceRest.put('Contact', id, updatedInfo, function(error, data) {
+  console.log(data);
+});
+</code></pre>
+
+<h4 id="delete"><a name="user-content-delete" href="#delete" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>Delete</h4>
+<p>Deletes an object. Example:</p>
+<pre><code class="javascript">var id = 2;
+salesforceRest.delete('Contact', id, function(error, data) {
+  console.log(data);
+}
+</code></pre></article></body></html>

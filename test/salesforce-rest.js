@@ -3,14 +3,16 @@ var salesforceRest = require('../lib/salesforce-rest');
 var config = require('./config');
 var Promise = require('bluebird');
 var querystring = require('querystring');
+var _ = require('underscore');
+
 describe('salesforceRest', function() {
   var id;
   describe('options', function() {
-    it('should start not set', function() {
+    it('starts not set', function() {
       expect(salesforceRest.optionsSet()).to.be.false;
     });
 
-    it('should set options', function() {
+    it('sets options', function() {
       salesforceRest.setRestOptions('abcdef', 'https://something.org');
       salesforceRest.setOptions({
         key: '123',
@@ -19,7 +21,7 @@ describe('salesforceRest', function() {
       expect(salesforceRest.optionsSet()).to.be.true;
     });
 
-    it('should get options', function() {
+    it('gets options', function() {
       var options = salesforceRest.getOptions();
       expect(options.accessToken).to.equal('abcdef');
       expect(options.instanceURL).to.equal('something.org');
@@ -30,12 +32,12 @@ describe('salesforceRest', function() {
   });
 
   describe('login', function() {
-    it('should not continue if options are not set', function() {
+    it('does not login if options are not set', function() {
       salesforceRest.resetOptions();
       expect(function(){salesforceRest.login()}).to.throw(Error);
     });
 
-    it('should login', function() {
+    it('logs in', function() {
       salesforceRest.setOptions(config);
       salesforceRest.login(function(error, data) {
         expect(data).to.have.property('access_token');
@@ -50,7 +52,7 @@ describe('salesforceRest', function() {
       salesforceRest.resetOptions();
     });
 
-    it('should not run query when options are not set', function() {
+    it('does not run query when options are not set', function() {
       var getFunction = function() {
         salesforceRest.get('Select Name FROM User', function(){});
       }
@@ -58,7 +60,7 @@ describe('salesforceRest', function() {
       expect(getFunction).to.throw(Error);
     });
 
-    it('should run query after login', function(done) {
+    it('runs query after login', function(done) {
       this.timeout(5000);
       salesforceRest.setOptions(config);
 
@@ -69,7 +71,7 @@ describe('salesforceRest', function() {
       .then(function() {
         salesforceRest.get('Select Name FROM User', function(error, data) {
           expect(error).to.be.null;
-          data = JSON.parse(data);
+          
           expect(Object.keys(data).length).to.be.gt(0);
           done();
         });
@@ -81,7 +83,7 @@ describe('salesforceRest', function() {
   });
 
   describe('post', function() {
-    it('should not post if options are not set', function() {
+    it('does not post if options are not set', function() {
 
       salesforceRest.resetOptions();
       var postFunction = function() {
@@ -90,7 +92,7 @@ describe('salesforceRest', function() {
       expect(postFunction).to.throw(Error);
     });
 
-    it('should post after login', function(done) {
+    it('posts after login', function(done) {
       this.timeout(5000);
       salesforceRest.setOptions(config);
 
@@ -99,7 +101,6 @@ describe('salesforceRest', function() {
       var postData = {
           "FirstName": "Buddy",
           "LastName": "Testman",
-          "RecordTypeId": config.recordTypeId
       }
       loginPromise().then(function(rest){})
       .then(function() {
@@ -127,13 +128,13 @@ describe('salesforceRest', function() {
           throw new Error('error getting id');
         }
         expect(error).to.be.null;
-        data = JSON.parse(data);
+
         id = data.records[0].Id;
         done();
       })
     });
 
-    it('should not put if options are not set', function(done) {
+    it('does not update if options are not set', function(done) {
       var url = salesforceRest.getOptions().instanceURL;
       
       var putFunction = function() {
@@ -144,7 +145,7 @@ describe('salesforceRest', function() {
       done();
     });
 
-    it('should update a record', function(done) {
+    it('updates a record', function(done) {
       this.timeout(5000);
       salesforceRest.put('Contact', id, {LastName: 'Redman'}, function(error, data) {
         expect(error).to.be.null;
@@ -152,7 +153,6 @@ describe('salesforceRest', function() {
 
         salesforceRest.get(confirmQuery, function(error, data) {
           expect(error).to.be.null;
-          data = JSON.parse(data);
           expect(data.records[0].LastName).to.be.eql('Redman');
           done();
         });
@@ -161,8 +161,48 @@ describe('salesforceRest', function() {
   });
 
   describe('delete', function() {
-    it ('should not delete if options, id, or object name are not set', function() {
-      
+    it ('does not delete record if options, id, or object name are not set', function() {
+      var deleteFunction = function() {
+        salesforceRest.delete();
+      }
+      expect(deleteFunction).to.throw(Error);
+      var accessToken = salesforceRest.getOptions().accessToken;
+      salesforceRest.setOptions({accessToken: null});
+      deleteFunction = function() {
+        salesforceRest.delete('test', '2');
+      }
+      expect(deleteFunction).to.throw(Error);
+      salesforceRest.setOptions({accessToken: accessToken});
+    });
+
+    it ('deletes record', function(done) {
+      this.timeout(5000);
+      salesforceRest.delete('Contact', id, function(error, data) {
+        expect(error).to.be.null;
+        var confirmQuery = "SELECT Name from Contact WHERE Id = '" + id + "'";
+
+        salesforceRest.get(confirmQuery, function(error, data) {
+          expect(error).to.be.null;
+          expect(data.totalSize).to.be.equal(0);
+          done();
+        });
+      });
     });
   });
+
+  // describe('deleteall', function() {
+  //   it ('deletes all', function() {
+  //     var query = "SELECT Id from Contact";
+  //     salesforceRest.get(query, function(error, data) {
+  //       var ids = _.map(data.records, function(item) {
+  //         return item.Id;
+  //       });
+  //       _.each(ids, function(item) {
+  //         salesforceRest.delete('Contact', item, function(error, data) {
+  //           expect(error).to.be.null;
+  //         });
+  //       });
+  //     });
+  //   });
+  // });
 });
