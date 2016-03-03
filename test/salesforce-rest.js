@@ -2,9 +2,9 @@ var expect = require('chai').expect;
 var salesforceRest = require('../lib/salesforce-rest');
 var config = require('./config');
 var Promise = require('bluebird');
-
+var querystring = require('querystring');
 describe('salesforceRest', function() {
-
+  var id;
   describe('options', function() {
     it('should start not set', function() {
       expect(salesforceRest.optionsSet()).to.be.false;
@@ -114,10 +114,55 @@ describe('salesforceRest', function() {
         console.error(e);
         done();
       })
-
     });
   });
 
+  describe('put', function() {
+    var query = "SELECT Id from Contact WHERE FirstName = 'Buddy' LIMIT 1";
+    
 
-  
+    before(function(done) {
+      salesforceRest.get(query, function(error, data) {
+        if (error) {
+          throw new Error('error getting id');
+        }
+        expect(error).to.be.null;
+        data = JSON.parse(data);
+        id = data.records[0].Id;
+        done();
+      })
+    });
+
+    it('should not put if options are not set', function(done) {
+      var url = salesforceRest.getOptions().instanceURL;
+      
+      var putFunction = function() {
+        salesforceRest.put(query);
+      }
+      expect(putFunction).to.throw(Error);
+      salesforceRest.setOptions({instanceURL: url});
+      done();
+    });
+
+    it('should update a record', function(done) {
+      this.timeout(5000);
+      salesforceRest.put('Contact', id, {LastName: 'Redman'}, function(error, data) {
+        expect(error).to.be.null;
+        var confirmQuery = "SELECT LastName from Contact WHERE Id = '" + id + "'";
+
+        salesforceRest.get(confirmQuery, function(error, data) {
+          expect(error).to.be.null;
+          data = JSON.parse(data);
+          expect(data.records[0].LastName).to.be.eql('Redman');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('delete', function() {
+    it ('should not delete if options, id, or object name are not set', function() {
+      
+    });
+  });
 });
