@@ -1,6 +1,6 @@
 {
   "name": "salesforce-rest",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Salesforce REST API",
   "author": "Andrew Pedley <apedley@gmail.com>",
   "main": "lib/salesforce-rest",
